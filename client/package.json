@@ -1,0 +1,25 @@
+{
+  "name": "client",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "start": "grunt build"
+  },
+  "author": "Mattie Phillip",
+  "license": "ISC",
+  "devDependencies": {
+    "grunt": "1.0.1",
+    "grunt-contrib-clean": "1.1.0",
+    "grunt-contrib-concat": "1.0.1",
+    "grunt-contrib-copy": "1.0.0",
+    "grunt-contrib-jshint": "1.1.0",
+    "grunt-contrib-nodeunit": "1.0.0",
+    "grunt-contrib-uglify": "3.0.1",
+    "grunt-contrib-watch": "1.0.0",
+    "grunt-recess": "1.0.1"
+  },
+  "dependencies": {
+    "angular-route": "1.6.5"
+  }
+}

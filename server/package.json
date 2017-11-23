@@ -1,0 +1,25 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "compression": "1.7.0",
+    "express": "4.15.3",
+    "express-fileupload": "^0.3.0",
+    "express-list-routes": "0.1.4",
+    "morgan": "1.8.2",
+    "nedb": "1.8.0",
+    "promise": "8.0.1"
+  },
+  "devDependencies": {
+    "grunt": "1.0.1",
+    "grunt-contrib-jshint": "1.1.0",
+    "grunt-contrib-nodeunit": "1.0.0"
+  }
+}

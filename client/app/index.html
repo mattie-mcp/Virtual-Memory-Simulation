@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="app">
+
+<head>
+  <title>Computer Lab</title>
+  <script src="/static/jquery.min.js"></script>
+  <script src="/static/angular.min.js"></script>
+  <script src="/static/angular-route.min.js"></script>
+  <link rel="stylesheet" href="/static/bootstrap.min.css"></link>
+  <link rel="stylesheet" href="/dist/stylesheets.less"></link>
+  <script src="/static/bootstrap.min.js"></script>
+  <script type="text/javascript" src="/dist/<%= grunt.config.get('pkg.name') %>.js"></script>
+  <style>
+    .grid-header {
+      /* margin-left: 0px; */
+      /* background: #a09998; */
+      margin-bottom: 15px;
+    }
+
+    .grid-container {
+      margin-bottom: 15px;
+    }
+
+    .grid-box {
+      margin-bottom: 15px;
+      border: #d1eac6;
+      border-radius: 5px;
+      border-style: solid;
+    }
+
+    .grid-row {
+      padding-left: 3px;
+      padding-right: 3px;
+      margin-left: 0px;
+      margin-right: 0px;
+      height: 70px;
+      padding-top: 15px;
+      padding-bottom: 15px;
+    }
+  </style>
+</head>
+
+<body ng-controller="appController" style="padding-top:20px;padding-bottom:20px;background-color:rgba(247, 247, 247, 0.94)">
+  <div class="container">
+    <header ng-include src="'/dist/__header.html'"></header>
+    <div class="panel panel-default">
+      <div class="panel-body">
+        <div class="container-fluid">
+          <form ref="uploadForm" action="/upload" method="POST" encType="multipart/form-data">
+              <input name="inputFile" type="file" />
+              <input type='submit' value='Upload!' />
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>

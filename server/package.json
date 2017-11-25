@@ -15,7 +15,8 @@
     "express-list-routes": "0.1.4",
     "morgan": "1.8.2",
     "nedb": "1.8.0",
-    "promise": "8.0.1"
+    "promise": "8.0.1",
+    "underscore": "^1.8.3"
   },
   "devDependencies": {
     "grunt": "1.0.1",

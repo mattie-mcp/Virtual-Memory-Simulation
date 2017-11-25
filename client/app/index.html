@@ -6,9 +6,12 @@
   <script src="/static/jquery.min.js"></script>
   <script src="/static/angular.min.js"></script>
   <script src="/static/angular-route.min.js"></script>
-  <link rel="stylesheet" href="/static/bootstrap.min.css"></link>
+  <script src="/static/ng-file-upload-shim.min.js"></script>
+  <script src="/static/ng-file-upload.min.js"></script>
+  <script src="/static/underscore-min.js"></script>
+  <link rel="stylesheet" href="/static/css/bootstrap.min.css"></link>
   <link rel="stylesheet" href="/dist/stylesheets.less"></link>
-  <script src="/static/bootstrap.min.js"></script>
+  <script src="/static/js/bootstrap.min.js"></script>
   <script type="text/javascript" src="/dist/<%= grunt.config.get('pkg.name') %>.js"></script>
   <style>
     .grid-header {
@@ -45,14 +48,79 @@
     <header ng-include src="'/dist/__header.html'"></header>
     <div class="panel panel-default">
       <div class="panel-body">
-        <div class="container-fluid">
-          <form ref="uploadForm" action="/upload" method="POST" encType="multipart/form-data">
-              <input name="inputFile" type="file" />
-              <input type='submit' value='Upload!' />
-          </form>
+        <div class="row">
+          <div class="panel-body">
+            <h3>Current memory reference: Process {{currentReference.process}} Page: {{currentReference.page}}</h3>
+            <div class="col-xs-6">
+              <h3>Page Table</h3>
+              <table class="table">
+                <tr>
+                  <th>Page</th>
+                  <th>Frame</th>
+                </tr>
+                <tr ng-repeat="p in pageTable">
+                  <td>{{p.page}}</td>
+                  <td>{{p.frame}}</td>
+                </tr>
+              </table>
+            </div>
+            <div class="col-xs-6">
+              <h3>Physical Memory</h3>
+              <table class="table">
+                <tr>
+                  <th>Process</th>
+                  <th>Pages</th>
+                  <th>Memory References</th>
+                </tr>
+                <tr ng-repeat="p in physicalMemory">
+                  <td>{{p.frame}}</td>
+                  <td>{{p.processId}}</td>
+                  <td>{{p.pageNumber}}</td>
+                </tr>
+              </table>
+            </div>
+            <div class="text-center">
+              <div class="btn-group" role="group" aria-label="...">
+                  <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-step-backward" aria-hidden="true"></span></button>
+                  <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-play" aria-hidden="true"></span></button>
+                  <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-pause" aria-hidden="true"></span></button>
+                  <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-step-forward" aria-hidden="true"></span></button>
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="panel-body">
+          <div class="col-xs-3">
+            <div class="container-fluid">
+              <div class="form-group">
+                <h3>File Input</h3>
+                <input ngf-select ng-model="file" name="file" type="file" />
+                <p class="help-block">Upload file to start simulation</p>
+              </div>
+              <button class="btn btn-primary" type="button" ng-click="uploadFile(file)">Upload</button>
+            </div>
+          </div>
+          <div class="col-xs-9">
+            <h3>Memory Reference Statistics</h3>
+            <table class="table">
+              <tr>
+                <th>Process Number</th>
+                <th>Page Count</th>
+                <th>Memory Reference Count</th>
+              </tr>
+              <tr ng-repeat="p in statsData">
+                <td>{{p.name}}</td>
+                <td>{{p.pageCount}}</td>
+                <td>{{p.refCount}}</td>
+              </tr>
+            </table>
+          </div>
         </div>
       </div>
     </div>
+  </div>
   </div>
 </body>
 

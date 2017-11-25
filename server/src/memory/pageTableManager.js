@@ -1,10 +1,7 @@
 
 let pageTableList = [];
 
-let pageTable = {
-  name: null,
-  pages: []
-};
+
 
 let pageEntry = {
   page: null,
@@ -12,16 +9,22 @@ let pageEntry = {
 };
 
 const createTable = (pageName, pages) => {
-  let pTable = Object.assign({}, pageTable);
-  pTable.name = pageName;
+  console.log('pages coming in', JSON.stringify(pages));
+  let pageTable = {
+    pages: []
+  };
 
   for (let i = 0; i< pages.length; i++) {
-    let pEntry = Object.assign({}, pageEntry);
-    pEntry.page = pages[i];
-    pTable.pages.push(pEntry);
+    let pEntry = {
+      page: pages[i],
+      frame: null
+    };
+    pageTable.pages.push(pEntry);
   }
 
-  return pageTableList.push(pTable) - 1; 
+  console.log('createTable', JSON.stringify(pageTable));
+
+  return pageTableList.push(pageTable) - 1; 
 };
 
 const accessAtIndex = (index) => {
@@ -29,7 +32,8 @@ const accessAtIndex = (index) => {
 };
 
 const pageTableManager = {
-  createTable: createTable
+  createTable: createTable,
+  accessAtIndex: accessAtIndex
 };
 
 module.exports = pageTableManager;

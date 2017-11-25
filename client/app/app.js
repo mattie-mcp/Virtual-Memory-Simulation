@@ -40,7 +40,7 @@ app.controller('appController', ['$scope', '$http', 'Upload', ($scope, $http, Up
     return $http({
       url: '/getState',
       method: "GET",
-      params: { processName: $scope.currentReference.process }
+      params: { processName: $scope.currentReference == null ? null : $scope.currentReference.process }
     }).then((successResponse) => {
       console.log(successResponse.data);
     }, (failResonse) => {
@@ -58,6 +58,8 @@ app.controller('appController', ['$scope', '$http', 'Upload', ($scope, $http, Up
     }).then((response) => {
       $scope.statsData = response.data;
       $scope.step(1);
+      // $scope.currentReference = response.data.currentReference;
+      
     });
   };
 

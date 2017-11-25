@@ -8,10 +8,13 @@ exports.addRoutes = (app, config) => {
       return res.status(400).send('No files were uploaded.');
 
     const inputFile = req.files.file;
-    memory.startNewProgram(inputFile)
-      .then((accept, reject) => {
-        res.send(accept);
-      });
+    fileOperations.preProcessFile(inputFile)
+      .then((fileLocation) => {
+        memory.startNewProgram(fileLocation)
+        .then((accept, reject) => {
+          res.send(accept);
+        });
+      })
   });
 
   app.get('/nextReference', (req, res) => {

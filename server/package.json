@@ -4,12 +4,14 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "test": "jasmine"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "compression": "1.7.0",
+    "event-stream": "^3.3.4",
     "express": "4.15.3",
     "express-fileupload": "^0.3.0",
     "express-list-routes": "0.1.4",
@@ -21,6 +23,7 @@
   "devDependencies": {
     "grunt": "1.0.1",
     "grunt-contrib-jshint": "1.1.0",
-    "grunt-contrib-nodeunit": "1.0.0"
+    "grunt-contrib-nodeunit": "1.0.0",
+    "jasmine": "^2.8.0"
   }
 }

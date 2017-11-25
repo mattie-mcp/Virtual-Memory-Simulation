@@ -1,52 +1,63 @@
 const config = require('../config.js');
 const path = require('path');
+const es = require('event-stream');
+const fs = require('fs');
+const _ = require('lodash');
 
-const fileOperations = {};
-fileOperations.fileLocation = '';
+let fileLocation = '';
 
-fileOperations.readFile = (fileLocation) => {
-  return new Promise((fulfill, reject) => {
-    const lineReader = require('readline').createInterface({
-      input: require('fs').createReadStream(fileLocation)
-    });
+const readFile = (fileLocation) => {
+  let content = [];
+
+  let fileBuffer = fs.readFileSync(fileLocation);
+  let fileString = fileBuffer.toString();
   
-    let content = [];
-  
-    lineReader.on('line', function (line) {
-      let pInfo = line.split(':');
-      content.push({ process: pInfo[0].replace(/\s+/g, ''), page: pInfo[1].replace(/\s+/g, '') });
-    });
-  
-    lineReader.on('close', function () {
-      fulfill(content);
-    });
+  content = fileString.trim().split('\r\n');
+  content = _.map(content, (line) => {
+    if (line == '') {
+      return null;
+    }
+    let pInfo = line.split(':');
+    return { process: pInfo[0].replace(/\s+/g, ''), page: pInfo[1].replace(/\s+/g, '') };
   });
+
+  return content;
 };
 
-fileOperations.processFile = (inputFile) => {
+const preProcessFile = (inputFile) => {
   return new Promise((fulfill, reject) => {
-    fileOperations.fileLocation = path.resolve(__dirname, '../inputFiles/' + inputFile.name);
-    
-    inputFile.mv(fileOperations.fileLocation, function (err) {
-      if (err)
+    fileLocation = path.resolve(__dirname, '../inputFiles/' + inputFile.name);
+
+    inputFile.mv(fileLocation, (err) => {
+      if (err) {
+        console.log('err');
         reject(err);
-
-      fileOperations.readFile(fileOperations.fileLocation)
-        .then((data) => {
-          let writer = require('fs').createWriteStream(fileOperations.fileLocation);
-          writer.write(JSON.stringify(data));
-          fulfill(data);
-        });
-    
+      }
+      return fulfill(fileLocation);
     });
   });
 };
 
-fileOperations.getData = () => {
+const processFile = (fileLocation) => {
   return new Promise((fulfill, reject) => {
-    fileOperations.readFile(fileOperations.fileLocation)
-      .then((data) => fulfill(data));
+    let content = readFile(fileLocation);
+    let writer = require('fs').createWriteStream(fileLocation);
+    writer.write(JSON.stringify(content));
+    return fulfill(content);
   });
 };
 
+const getData = () => {
+  return new Promise((fulfill, reject) => {
+    const data = readFile(fileLocation);
+    console.log('data ' + data);
+    fulfill(data);
+  });
+};
+
+const fileOperations = {
+  preProcessFile: preProcessFile,
+  processFile: processFile,
+  readFile: readFile
+};
 module.exports = fileOperations;

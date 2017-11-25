@@ -19,12 +19,27 @@ app.controller('appController', ['$scope', '$http', 'Upload', ($scope, $http, Up
   $scope.pageTable = [];
   $scope.statsData;
   $scope.currentReference;
+  $scope.isPaused = false;
 
   let setup = () => {
     for (let i=0; i<10; i++) {
       $scope.physicalMemory.push({ frame: i, processId: "-", pageNumber: "-" });
       $scope.pageTable.push({ page: i, frame: "-" });
     }
+  };
+
+  $scope.step = (action) => {
+    return $http({
+      url: '/changeReference',
+      method: "GET",
+      params: { next: action == 1, previous: action == -1 }
+    }).then((successResponse) => {
+      console.log(successResponse.data);
+      $scope.currentReference = successResponse.data;
+    }, (failResonse) => {
+      console.log('ERROR' + successResponse.status);
+      return null;
+    });
   };
   
   $scope.uploadFile = (file) => {
@@ -35,17 +50,7 @@ app.controller('appController', ['$scope', '$http', 'Upload', ($scope, $http, Up
       }
     }).then((response) => {
       $scope.statsData = response.data;
-
-      return $http({
-        url: '/changeReference',
-        method: "GET",
-        params: { next: true }
-      }).then((successResponse) => {
-        $scope.currentReference = successResponse.data;
-      }, (failResonse) => {
-        console.log('ERROR' + successResponse.status);
-        return null;
-      });
+      $scope.step(1);
     });
   };
 

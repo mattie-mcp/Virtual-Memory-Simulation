@@ -51,6 +51,14 @@
         <div class="row">
           <div class="panel-body">
             <h3>Current memory reference: Process {{currentReference.process}} Page: {{currentReference.page}}</h3>
+            <div class="text-center">
+              <div class="btn-group" role="group" aria-label="...">
+                  <button type="button" class="btn btn-default" ng-click="step(-1)"><span class="glyphicon glyphicon-step-backward" aria-hidden="true"></span></button>
+                  <button type="button" class="btn btn-default" ng-if="isPaused"><span class="glyphicon glyphicon-play" aria-hidden="true"></span></button>
+                  <button type="button" class="btn btn-default" ng-if="!isPaused"><span class="glyphicon glyphicon-pause" aria-hidden="true"></span></button>
+                  <button type="button" class="btn btn-default" ng-click="step(1)"><span class="glyphicon glyphicon-step-forward" aria-hidden="true"></span></button>
+                </div>
+            </div>
             <div class="col-xs-6">
               <h3>Page Table</h3>
               <table class="table">
@@ -78,14 +86,6 @@
                   <td>{{p.pageNumber}}</td>
                 </tr>
               </table>
-            </div>
-            <div class="text-center">
-              <div class="btn-group" role="group" aria-label="...">
-                  <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-step-backward" aria-hidden="true"></span></button>
-                  <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-play" aria-hidden="true"></span></button>
-                  <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-pause" aria-hidden="true"></span></button>
-                  <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-step-forward" aria-hidden="true"></span></button>
-                </div>
             </div>
           </div>
         </div>

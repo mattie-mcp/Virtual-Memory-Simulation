@@ -1,19 +1,24 @@
 // process table
+const _ = require('lodash');
 
 let pcb = {
     name: null,
-    pointer: null,
+    pageTablePointer: null,
     pageFaultCount: 0
 };
 
 let processList = [];
 
 const retrieve = (processName) => {
-    // lookup in table and return
+    return _.find(processList, (p) => {
+        return p.name == processName;
+    });
 };
 
-const addProcess = (processName) => {
-    //add pcb to table
+const addProcess = (processName, pages) => {
+    let p = Object.assign({}, pcb);
+    p.name = processList;
+    processList.push(p);
 };
 
 const processTable = {

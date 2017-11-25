@@ -25,7 +25,7 @@ const createTable = (pageName, pages) => {
 };
 
 const accessAtIndex = (index) => {
-  return pageTable[index];
+  return pageTableList[index];
 };
 
 const pageTableManager = {

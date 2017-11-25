@@ -14,21 +14,18 @@ exports.addRoutes = (app, config) => {
       });
   });
 
-  app.get('/changeReference', (req, res) => {
-    memory.changeReference(req.query)
+  app.get('/nextReference', (req, res) => {
+    memory.nextReference(req.query)
       .then((accept, reject) => {
         res.send(accept);
       });
   });
 
-  // app.post('/getInformation', (req, res) => {
-  //   if (!req.files)
-  //     return res.status(400).send('No files were uploaded.');
-
-  //   const inputFile = req.files.file;
-  //   memory.getMemoryInfo(inputFile)
-  //     .then((accept, reject) => {
-  //       res.send(accept);
-  //     });
-  // });
+  app.get('/getState', (req, res) => {
+    memory.getState(req.query)
+      .then((accept, reject) => {
+        res.send(accept);
+      });
+  });
+  
 };

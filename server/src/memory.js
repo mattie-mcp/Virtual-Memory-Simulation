@@ -3,10 +3,8 @@ const _ = require('lodash');
 const fileOperations = require('./fileOperations');
 const pageTable = require('./memory/pageTableManager');
 
-
-const memory = {};
-memory.memoryReferences = [];
-memory.currentReference = {};
+let memoryReferences = [];
+let processList = [];
 
 let pcb = {
   name: null,
@@ -16,14 +14,12 @@ let pcb = {
   pageFaultCount: 0
 };
 
-let processList = [];
-
-memory.startNewProgram = (file) => {
+const startNewProgram = (file) => {
 
   return new Promise((fulfill, reject) => {
     fileOperations.processFile(file)
-      .then((response) => memory.load(response))
-      .then((response) => fulfill(memory.getStats()));
+      .then((response) => load(response))
+      .then((response) => fulfill(getReferenceStats()));
   });
 };
 
@@ -35,54 +31,39 @@ memory.startNewProgram = (file) => {
  * current: current instruction
  * 
  */
-memory.changeReference = (payload) => {
+const nextReference = (payload) => {
   return new Promise((fulfill, reject) => {
-    console.log(payload);
     Promise.resolve()
       .then(() => {
-        if (!memory.memoryReferences) {
-          return fileOperations.getData()
+        if (!this.memoryReferences) {
+          console.log('getting memory references');
+          fileOperations.getData()
             .then((data) => {
-              memory.memoryReferences = data;
+              this.memoryReferences = data;
             });
         }
-        if (!memory.currentReference) {
-          memory.currentReference = memory.memoryReferences[0];
+        if (!this.currentReference) {
+          console.log('changing');
+          this.currentReference = this.memoryReferences[0];
         }
         return;
       })
       .then(() => {
+        console.log('current reference: ' + this.currentReference);
         if (payload.next == 'true') {
-          // get next memory reference
-          const index = _.indexOf(memory.memoryReferences, memory.currentReference);
-          console.log(index);
-          if (index + 2 > memory.memoryReferences.length) {
-            console.log('end');
-            fulfill(memory.currentReference);
-            return;
+          const index = _.indexOf(this.memoryReferences, this.currentReference); // get next memory reference
+          if (index + 2 > this.memoryReferences.length) {
+            return fulfill(this.currentReference);
           }
-          memory.currentReference = memory.memoryReferences[index + 1];
+          this.currentReference = this.memoryReferences[index + 1];
         }
         else if (payload.previous == 'false') {
           // get last memory reference
         }
-        console.log(memory.currentReference);
-        fulfill(memory.currentReference);
+
+        fulfill(this.currentReference);
       });
 
-  });
-};
-
-memory.getStats = () => {
-  return new Promise((fulfill, reject) => {
-    const data = _.map(processList, (p) => {
-      return {
-        name: p.name,
-        pageCount: p.pageCount,
-        refCount: p.referenceCount
-      }
-    });
-    fulfill(data);
   });
 };
 
@@ -90,35 +71,77 @@ memory.getStats = () => {
  * Retrives memory statistics
  * @param {*} memoryReferences 
  */
-memory.load = (memoryReferences) => {
+const load = (rawReferences) => {
   return new Promise((fulfill, reject) => {
-    memory.memoryReferences = _.map(memoryReferences, (m) => {
+    this.memoryReferences = _.map(rawReferences, (m) => {
       return {
         process: m.process,
         page: parseInt(m.page, 2)
       };
     });
 
-    const pNames = _.map(_.uniq(memoryReferences, (p) => {
-      return p.process;
-    }), (x) => { return x.process });
-
-    for (let i = 0; i < pNames.length; i++) {
-      const references = _.where(memoryReferences, { "process": pNames[i] });
-      const pages = _.map(_.uniq(references, (r) => {
-        return r.page;
-      }), (x) => { return parseInt(x.page, 2); });
-
-      let pEntry = Object.assign({}, pcb);
-      pEntry.name = pNames[i];
-      pEntry.pageCount = pages.length;
-      pEntry.referenceCount = references.length;
-      pEntry.pageTablePointer = pageTable.createTable(pEntry.name, pages);
-      processList.push(pEntry);
-    }
+    console.log('mem references in load' + JSON.stringify(memoryReferences));
+    parseReferences();
 
     fulfill();
   });
+};
+
+const parseReferences = () => {
+  console.log(' mem references' + JSON.stringify(memoryReferences));
+  const pNames = _.map(_.uniq(memoryReferences, (p) => {
+    return p.process;
+  }), (x) => { return x.process });
+
+  for (let i = 0; i < pNames.length; i++) {
+    const references = _.where(memoryReferences, { "process": pNames[i] });
+    const pages = _.map(_.uniq(references, (r) => {
+      return r.page;
+    }), (x) => { return parseInt(x.page, 2); });
+
+    let pEntry = Object.assign({}, pcb);
+    pEntry.name = pNames[i];
+    pEntry.pageCount = pages.length;
+    pEntry.referenceCount = references.length;
+    pEntry.pageTablePointer = pageTable.createTable(pEntry.name, pages);
+    this.processList.push(pEntry);
+  }
+};
+
+const getReferenceStats = () => {
+  console.log('process list' + JSON.stringify(this.processList));
+  return _.map(this.processList, (p) => {
+    return {
+      name: p.name,
+      pageCount: p.pageCount,
+      refCount: p.referenceCount
+    }
+  });
+};
+
+const getProcessTable = (processName) => {
+  return _.find(this.processList, (p) => {
+    return p.name == processName;
+  });
+};
+
+const getState = (processName) => {
+  console.log(processName);
+  return new Promise((fulfill, reject) => {
+    let response = {
+      status: this.currentReference,
+      pageTable: getProcessTable(processName),
+      frameTable: null
+    };
+    console.log(response);
+    fulfill(response);
+  });
+};
+
+const memory = {
+  getState: getState,
+  nextReference: nextReference,
+  startNewProgram: startNewProgram
 };
 
 module.exports = memory;

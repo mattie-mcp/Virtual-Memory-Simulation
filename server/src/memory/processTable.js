@@ -1,29 +1,48 @@
-// process table
 const _ = require('lodash');
+const pageTable = require('./pageTableManager');
+// process table
 
-let pcb = {
-    name: null,
-    pageTablePointer: null,
-    pageFaultCount: 0
+
+const parseReferences = (memoryReferences) => {
+  const pNames = _.map(_.uniq(memoryReferences, (p) => {
+    return p.process;
+  }), (x) => { return x.process });
+
+  for (let i = 0; i < pNames.length; i++) {
+    const references = _.where(memoryReferences, { "process": pNames[i] });
+    const pages = _.map(_.uniq(references, (r) => {
+      return r.page;
+    }), (x) => { return parseInt(x.page, 2); });
+
+    let pEntry = Object.assign({}, pcb);
+    pEntry.name = pNames[i];
+    pEntry.pageCount = pages.length;
+    pEntry.referenceCount = references.length;
+    pEntry.pageTablePointer = pageTable.createTable(pEntry.name, pages);
+    processList.push(pEntry);
+  }
 };
 
-let processList = [];
+const getReferenceStats = () => {
+  return _.map(processList, (p) => {
+    return {
+      name: p.name,
+      pageCount: p.pageCount,
+      refCount: p.referenceCount
+    }
+  });
+}
 
-const retrieve = (processName) => {
-    return _.find(processList, (p) => {
-        return p.name == processName;
-    });
-};
-
-const addProcess = (processName, pages) => {
-    let p = Object.assign({}, pcb);
-    p.name = processList;
-    processList.push(p);
+const getProcessTable = (processName) => {
+  return _.find(processList, (p) => {
+    return p.name == processName;
+  });
 };
 
 const processTable = {
-    retrieve: retrieve,
-    addProcess: addProcess
+  parseReferences: parseReferences,
+  getProcessTable: getProcessTable,
+  getReferenceStats: getReferenceStats
 };
 
 module.exports = processTable;

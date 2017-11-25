@@ -18,24 +18,31 @@ app.controller('appController', ['$scope', '$http', 'Upload', ($scope, $http, Up
   $scope.physicalMemory = [];
   $scope.pageTable = [];
   $scope.statsData;
-  $scope.currentReference;
+  //$scope.currentReference;
   $scope.isPaused = false;
-
-  let setup = () => {
-    for (let i=0; i<10; i++) {
-      $scope.physicalMemory.push({ frame: i, processId: "-", pageNumber: "-" });
-      $scope.pageTable.push({ page: i, frame: "-" });
-    }
-  };
 
   $scope.step = (action) => {
     return $http({
-      url: '/changeReference',
+      url: '/nextReference',
       method: "GET",
       params: { next: action == 1, previous: action == -1 }
     }).then((successResponse) => {
       console.log(successResponse.data);
       $scope.currentReference = successResponse.data;
+      $scope.getState();
+    }, (failResonse) => {
+      console.log('ERROR' + successResponse.status);
+      return null;
+    });
+  };
+
+  $scope.getState = () => {
+    return $http({
+      url: '/getState',
+      method: "GET",
+      params: { processName: $scope.currentReference.process }
+    }).then((successResponse) => {
+      console.log(successResponse.data);
     }, (failResonse) => {
       console.log('ERROR' + successResponse.status);
       return null;
@@ -53,8 +60,6 @@ app.controller('appController', ['$scope', '$http', 'Upload', ($scope, $http, Up
       $scope.step(1);
     });
   };
-
-  setup();
 
 }]);
 

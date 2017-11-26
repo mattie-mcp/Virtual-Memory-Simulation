@@ -15,9 +15,10 @@ app.config(['$routeProvider', '$locationProvider', ($routeProvider, $locationPro
 
 app.controller('appController', ['$scope', '$http', 'Upload', ($scope, $http, Upload) => {
   $scope.memReferences = [];
-  $scope.physicalMemory = [];
+  $scope.physicalMem = [];
   $scope.pageTable = [];
   $scope.statsData;
+  $scope.progress = {};
   //$scope.currentReference;
   $scope.isPaused = false;
 
@@ -43,6 +44,9 @@ app.controller('appController', ['$scope', '$http', 'Upload', ($scope, $http, Up
       params: { processName: $scope.currentReference == null ? null : $scope.currentReference.process }
     }).then((successResponse) => {
       console.log(successResponse.data);
+      $scope.pageTable = successResponse.data.pageTable.pages;
+      $scope.physicalMem = successResponse.data.physicalMem;
+      $scope.progress = successResponse.data.progress;
     }, (failResonse) => {
       console.log('ERROR' + successResponse.status);
       return null;

@@ -13,11 +13,15 @@ const readFile = (fileLocation) => {
   let fileString = fileBuffer.toString();
   
   content = fileString.trim().split('\r\n');
+  console.log('array ' + JSON.stringify(content));
   content = _.map(content, (line) => {
     if (line == '') {
-      return null;
+      return;
     }
     let pInfo = line.split(':');
+    if (pInfo.length != 2) {
+      throw new Error('input file has incorrect format');
+    }
     return { process: pInfo[0].replace(/\s+/g, ''), page: pInfo[1].replace(/\s+/g, '') };
   });
 

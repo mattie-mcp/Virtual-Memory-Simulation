@@ -1,11 +1,10 @@
 
 let pageTableList = [];
 
-
-
 let pageEntry = {
   page: null,
-  frame: null
+  frame: null,
+  lastAccessed: null
 };
 
 const createTable = (pageName, pages) => {
@@ -14,11 +13,10 @@ const createTable = (pageName, pages) => {
     pages: []
   };
 
+  console.log('page length ' + pages.length);
   for (let i = 0; i< pages.length; i++) {
-    let pEntry = {
-      page: pages[i],
-      frame: null
-    };
+    let pEntry = Object.assign({}, pageEntry);
+    pEntry.page = pages[i];
     pageTable.pages.push(pEntry);
   }
 
@@ -27,13 +25,13 @@ const createTable = (pageName, pages) => {
   return pageTableList.push(pageTable) - 1; 
 };
 
-const accessAtIndex = (index) => {
+const getPageTableAtIndex = (index) => {
   return pageTableList[index];
 };
 
 const pageTableManager = {
   createTable: createTable,
-  accessAtIndex: accessAtIndex
+  getPageTableAtIndex: getPageTableAtIndex
 };
 
 module.exports = pageTableManager;

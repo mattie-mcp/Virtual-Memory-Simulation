@@ -2,6 +2,7 @@ const config = require('../config.js');
 const _ = require('lodash');
 const fileOperations = require('./fileOperations');
 const pageTable = require('./memory/pageTableManager');
+const physicalMem = require('./memory/physicalMem');
 
 let memoryReferences = [];
 let processList = [];
@@ -24,9 +25,11 @@ const startNewProgram = (fileLocation) => {
 
   return new Promise((fulfill, reject) => {
     fileOperations.processFile(fileLocation)
-      .then((response) => load(response) )
+      .then((response) => load(response))
+      .then(() => createProcessTable())
+      .then(() => physicalMem.initialize())
       .then((response) => fulfill(getReferenceStats()))
-      .catch((err) => { throw err; });
+      .catch((err) => { reject(err); });
   });
 };
 
@@ -41,16 +44,6 @@ const startNewProgram = (fileLocation) => {
 const nextReference = (payload) => {
   return new Promise((fulfill, reject) => {
     Promise.resolve()
-      .then(() => {
-        if (!memoryReferences) {
-          console.log('[info]', 'No memory references found, reloading file');
-          fileOperations.getData()
-            .then((data) => {
-              memoryReferences = data;
-            });
-        }
-        return;
-      })
       .then(() => {
         if (!currentReference) {
           currentReference = memoryReferences[0];
@@ -79,48 +72,48 @@ const nextReference = (payload) => {
  */
 const load = (rawReferences) => {
   return new Promise((fulfill, reject) => {
+    let i=1;
     memoryReferences = _.map(rawReferences, (m) => {
       return {
+        index: i++,
         process: m.process,
         page: parseInt(m.page, 2)
       };
     });
 
-    parseReferences();
-
-    fulfill();
+    fulfill(memoryReferences);
   });
 };
 
-const parseReferences = () => {
-  const pNames = _.map(_.uniq(memoryReferences, (p) => {
-    return p.process;
-  }), (x) => { return x.process });
+const createProcessTable = () => {
+  return new Promise((fulfill, reject) => {
+    const processNames = _.map(_.uniq(memoryReferences, (p) => {
+      return p.process;
+    }), (x) => { return x.process });
 
-  for (let i = 0; i < pNames.length; i++) {
-    const references = _.where(memoryReferences, { "process": pNames[i] });
-    const pages = _.map(_.uniq(references, (r) => {
-      return r.page;
-    }), (x) => { return x.page; });
-    let pEntry = Object.assign({}, pcb);
-    pEntry.name = pNames[i];
-    pEntry.pageCount = pages.length;
-    pEntry.referenceCount = references.length;
-    pEntry.pageTablePointer = pageTable.createTable(pEntry.name, pages);
-    console.log('info ' + JSON.stringify( pageTable.accessAtIndex(pEntry.pageTablePointer)));
-    console.log('[info]', 'Adding process ' + pEntry.name + ' to process table')
-    processList.push(pEntry);
-  }
+    for (let i = 0; i < processNames.length; i++) {
+
+      const references = _.where(memoryReferences, { "process": processNames[i] });
+      const pages = _.map(_.uniq(references, (r) => {
+        return r.page;
+      }), (x) => { return x.page; });
+
+      let pEntry = Object.assign({}, pcb);
+      pEntry.name = processNames[i];
+      pEntry.pageCount = pages.length;
+      pEntry.referenceCount = references.length;
+      pEntry.pageTablePointer = pageTable.createTable(pEntry.name, pages);
+
+      console.log('[info]', 'Adding process ' + pEntry.name + ' to process table')
+      processList.push(pEntry);
+    }
+
+    fulfill(processList);
+  });
 };
 
 const getReferenceStats = () => {
-  return _.map(processList, (p) => {
-    return {
-      name: p.name,
-      pageCount: p.pageCount,
-      refCount: p.referenceCount
-    }
-  });
+  return processList;
 };
 
 const getPCB = (processName) => {
@@ -129,15 +122,19 @@ const getPCB = (processName) => {
   });
 };
 
-const getState = (process) => {
+const getState = () => {
   return new Promise((fulfill, reject) => {
-    console.log('process name ' + JSON.stringify(process));
-    let _pcb = getPCB(process.processName);
-    console.log('pointer: ' + _pcb.pageTablePointer);
+    const _pcb = getPCB(currentReference.process);
+
     let response = {
       status: currentReference,
-      pageTable: pageTable.accessAtIndex(_pcb.pageTablePointer),
-      frameTable: null
+      pageTable: pageTable.getPageTableAtIndex(_pcb.pageTablePointer),
+      physicalMem: physicalMem.getFrames(),
+      progress: {
+        min: 0,
+        current: currentReference.index,
+        max: memoryReferences.length
+      }
     };
     console.log('[info]', 'Current state ' + JSON.stringify(response));
     fulfill(response);

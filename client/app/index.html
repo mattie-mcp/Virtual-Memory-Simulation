@@ -20,6 +20,12 @@
     <header ng-include src="'/dist/__header.html'"></header>
     <div class="panel panel-default">
       <div class="panel-body">
+        <div class="progress">
+          <div class="progress-bar" 
+          role="progressbar"  aria-valuenow="{{progress.current}}" aria-valuemin="{{progress.min}}" aria-valuemax="{{progress.max}}" style="width: {{(progress.current/progress.max)*100}}%;">
+            {{(progress.current/progress.max)*100}}% Complete
+          </div>
+        </div>
         <div class="row">
           <div class="panel-body">
             <h3>Current memory reference: Process {{currentReference.process}} Page: {{currentReference.page}}</h3>
@@ -52,8 +58,8 @@
                   <th>Pages</th>
                   <th>Memory References</th>
                 </tr>
-                <tr ng-repeat="p in physicalMemory">
-                  <td>{{p.frame}}</td>
+                <tr ng-repeat="p in physicalMem">
+                  <td>{{p.number}}</td>
                   <td>{{p.processId}}</td>
                   <td>{{p.pageNumber}}</td>
                 </tr>
@@ -79,13 +85,15 @@
             <table class="table">
               <tr>
                 <th>Process Number</th>
-                <th>Page Count</th>
-                <th>Memory Reference Count</th>
+                <th>Pages</th>
+                <th>Memory References</th>
+                <th>Page Faults</th>
               </tr>
               <tr ng-repeat="p in statsData">
                 <td>{{p.name}}</td>
                 <td>{{p.pageCount}}</td>
-                <td>{{p.refCount}}</td>
+                <td>{{p.referenceCount}}</td>
+                <td>{{p.pageFaultCount}}</td>
               </tr>
             </table>
           </div>

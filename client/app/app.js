@@ -47,6 +47,7 @@ app.controller('appController', ['$scope', '$http', 'Upload', ($scope, $http, Up
       $scope.pageTable = successResponse.data.pageTable.pages;
       $scope.physicalMem = successResponse.data.physicalMem;
       $scope.progress = successResponse.data.progress;
+      $scope.statsData = successResponse.data.processStats;
     }, (failResonse) => {
       console.log('ERROR' + successResponse.status);
       return null;
@@ -60,7 +61,6 @@ app.controller('appController', ['$scope', '$http', 'Upload', ($scope, $http, Up
         file: file
       }
     }).then((response) => {
-      $scope.statsData = response.data;
       $scope.step(1);
       // $scope.currentReference = response.data.currentReference;
       

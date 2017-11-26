@@ -14,17 +14,6 @@ describe('basic functionality of file operations', () => {
 
 describe('basic functionality of program', () => {
 
-  it('should start a new program', () => {
-    const testDataPath = path.resolve(__dirname, "test.1.data");
-    memory.startNewProgram(testDataPath)
-      .then((response) => {
-        expect(response.length).toEqual(5);
-      })
-      .catch((err) => {
-        fail(err);
-      });
-  });
-
   it('should retrieve the state', () => {
     const testDataPath = path.resolve(__dirname, "test.2.data");
     memory.startNewProgram(testDataPath)
@@ -40,11 +29,31 @@ describe('basic functionality of program', () => {
       });
   });
 
+  it('should move 5 references', () => {
+    const testDataPath = path.resolve(__dirname, "test.3.data");
+    memory.startNewProgram(testDataPath)
+      .then((response) => memory.nextReference({ next: 'true'}))
+      .then((response) => memory.nextReference({ next: 'true'}))
+      .then((response) => memory.nextReference({ next: 'true'}))
+      .then((response) => memory.nextReference({ next: 'true'}))
+      .then((response) => memory.nextReference({ next: 'true'}))
+      .then((response) => memory.getState())
+      .then((stateData) => {
+        expect(stateData.status.process).toBe("P2");
+        expect(stateData.pageTable.pages.length).toBe(4);
+        expect(stateData.physicalMem.length).toBe(16);
+      })
+      .catch((err) => {
+        fail(err);
+      });
+  });
+
   afterAll(() => {
     let fileBuffer = fs.readFileSync(path.resolve(__dirname,'test.data'));
     let fileString = fileBuffer.toString();
 
     fs.writeFileSync(path.resolve(__dirname,'test.1.data'), fileString);
     fs.writeFileSync(path.resolve(__dirname,'test.2.data'), fileString);
+    fs.writeFileSync(path.resolve(__dirname,'test.3.data'), fileString);
   });
 });

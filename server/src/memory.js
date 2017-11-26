@@ -2,13 +2,18 @@ const config = require('../config.js');
 const _ = require('lodash');
 const fileOperations = require('./fileOperations');
 const pageTable = require('./memory/pageTableManager');
-const physicalMem = require('./memory/physicalMem');
 
 let memoryReferences = [];
 let processList = [];
 let currentReference = null;
 
-let pcb = {
+const memoryReference = {
+  index: null,
+  process: null,
+  page: null
+};
+
+const pcb = {
   name: null,
   pageTablePointer: null,
   pageCount: 0,
@@ -27,8 +32,7 @@ const startNewProgram = (fileLocation) => {
     fileOperations.processFile(fileLocation)
       .then((response) => load(response))
       .then(() => createProcessTable())
-      .then(() => physicalMem.initialize())
-      .then((response) => fulfill(getReferenceStats()))
+      .then(() => fulfill(pageTable.initializePhysicalMemory()))
       .catch((err) => { reject(err); });
   });
 };
@@ -45,7 +49,7 @@ const nextReference = (payload) => {
   return new Promise((fulfill, reject) => {
     Promise.resolve()
       .then(() => {
-        if (!currentReference) {
+        if (currentReference == null) {
           currentReference = memoryReferences[0];
         }
         else if (payload.next == 'true') {
@@ -53,16 +57,24 @@ const nextReference = (payload) => {
           if (index + 2 > memoryReferences.length) {
             return fulfill(currentReference);
           }
+          // move to next state
           currentReference = memoryReferences[index + 1];
         }
         else if (payload.previous == 'false') {
           // get last memory reference
         }
 
+        // trigger logical memory access
+        const _pcb = getPCB(currentReference.process);
+        const memOperation = pageTable.accessPage(_pcb.pageTablePointer, currentReference.process, currentReference.page);
+        if (memOperation.pageFault) {
+          _pcb.pageFaultCount++;
+        }
+
         console.log('[info]', 'Moving to reference ' + JSON.stringify(currentReference));
         fulfill(currentReference);
-      });
-
+      })
+      .catch((err) => { reject(err); });
   });
 };
 
@@ -72,13 +84,13 @@ const nextReference = (payload) => {
  */
 const load = (rawReferences) => {
   return new Promise((fulfill, reject) => {
-    let i=1;
+    let i = 1;
     memoryReferences = _.map(rawReferences, (m) => {
-      return {
-        index: i++,
-        process: m.process,
-        page: parseInt(m.page, 2)
-      };
+      let mRef = Object.assign({}, memoryReference);
+      mRef.index = i++;
+      mRef.process = m.process;
+      mRef.page = parseInt(m.page, 2);
+      return mRef;
     });
 
     fulfill(memoryReferences);
@@ -128,8 +140,9 @@ const getState = () => {
 
     let response = {
       status: currentReference,
+      processStats: processList,
       pageTable: pageTable.getPageTableAtIndex(_pcb.pageTablePointer),
-      physicalMem: physicalMem.getFrames(),
+      physicalMem: pageTable.getFrames(),
       progress: {
         min: 0,
         current: currentReference.index,

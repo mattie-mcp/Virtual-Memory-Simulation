@@ -13,18 +13,18 @@ const readFile = (fileLocation) => {
   let fileString = fileBuffer.toString();
   
   content = fileString.trim().split('\r\n');
-  console.log('array ' + JSON.stringify(content));
   content = _.map(content, (line) => {
-    if (line == '') {
-      return;
+    if (line == '' || line.includes('\n') || line.includes('\r')) {
+      return null;
     }
     let pInfo = line.split(':');
     if (pInfo.length != 2) {
-      throw new Error('input file has incorrect format');
+      return null;
     }
     return { process: pInfo[0].replace(/\s+/g, ''), page: pInfo[1].replace(/\s+/g, '') };
   });
 
+  _.remove(content, (row => { return row == null }));
   return content;
 };
 

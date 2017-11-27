@@ -25,6 +25,8 @@ const freeFrameLRU = () => {
   let lruIndex = _.indexOf(frameTable, lru);
   console.log('[info]', 'lru frame ' + JSON.stringify(lru) + ' lru index ' + lruIndex);
 
+  let victimProcess = frameTable[lruIndex].processId;
+  let victimPage = frameTable[lruIndex].pageNumber;
   frameTable[lruIndex].processId = null;
   frameTable[lruIndex].pageNumber = null;
   frameTable[lruIndex].isVictim = true;

@@ -116,7 +116,7 @@ const createProcessTable = () => {
       pEntry.referenceCount = references.length;
       pEntry.pageTablePointer = pageTable.createTable(pEntry.name, pages);
 
-      console.log('[info]', 'Adding process ' + pEntry.name + ' to process table')
+      console.log('[info]', 'Adding process ' + pEntry.name + ' to process table');
       processList.push(pEntry);
     }
 
@@ -141,7 +141,7 @@ const getState = () => {
     let response = {
       status: currentReference,
       processStats: processList,
-      pageTable: pageTable.getPageTableAtIndex(_pcb.pageTablePointer),
+      pageTables: pageTable.getPageTables(),
       physicalMem: pageTable.getFrames(),
       progress: {
         min: 0,
@@ -151,7 +151,8 @@ const getState = () => {
     };
     console.log('[info]', 'Current state ' + JSON.stringify(response));
     fulfill(response);
-  });
+  })
+  .catch((err) => { reject(err); });;
 };
 
 const memory = {

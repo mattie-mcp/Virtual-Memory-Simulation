@@ -44,7 +44,7 @@ app.controller('appController', ['$scope', '$http', 'Upload', ($scope, $http, Up
       params: { processName: $scope.currentReference == null ? null : $scope.currentReference.process }
     }).then((successResponse) => {
       console.log(successResponse.data);
-      $scope.pageTable = successResponse.data.pageTable.pages;
+      $scope.pageTables = successResponse.data.pageTables;
       $scope.physicalMem = successResponse.data.physicalMem;
       $scope.progress = successResponse.data.progress;
       $scope.statsData = successResponse.data.processStats;

@@ -24,30 +24,42 @@
           <div class="panel-body">
             <h3>Current memory reference: Process {{currentReference.process}} Page: {{currentReference.page}}</h3>
             <div class="text-center">
-                <div class="progress">
-                  <div class="progress-bar" role="progressbar" aria-valuenow="{{progress.current}}" aria-valuemin="{{progress.min}}" aria-valuemax="{{progress.max}}" style="width: {{(progress.current/progress.max)*100}}%;">
-                    {{(progress.current/progress.max)*100 | number: 0 }}% Complete
-                  </div>
+              <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="{{progress.current}}" aria-valuemin="{{progress.min}}" aria-valuemax="{{progress.max}}"
+                  style="width: {{(progress.current/progress.max)*100}}%;">
+                  {{(progress.current/progress.max)*100 | number: 0 }}% Complete
                 </div>
+              </div>
               <div class="btn-group" role="group" aria-label="...">
-                  <button type="button" class="btn btn-default" ng-click="step(-1)"><span class="glyphicon glyphicon-step-backward" aria-hidden="true"></span></button>
-                  <button type="button" class="btn btn-default" ng-if="isPaused"><span class="glyphicon glyphicon-play" aria-hidden="true"></span></button>
-                  <button type="button" class="btn btn-default" ng-if="!isPaused"><span class="glyphicon glyphicon-pause" aria-hidden="true"></span></button>
-                  <button type="button" class="btn btn-default" ng-click="step(1)"><span class="glyphicon glyphicon-step-forward" aria-hidden="true"></span></button>
-                </div>
+                <button type="button" class="btn btn-default" ng-click="step(-1)">
+                  <span class="glyphicon glyphicon-step-backward" aria-hidden="true"></span>
+                </button>
+                <button type="button" class="btn btn-default" ng-if="isPaused">
+                  <span class="glyphicon glyphicon-play" aria-hidden="true"></span>
+                </button>
+                <button type="button" class="btn btn-default" ng-if="!isPaused">
+                  <span class="glyphicon glyphicon-pause" aria-hidden="true"></span>
+                </button>
+                <button type="button" class="btn btn-default" ng-click="step(1)">
+                  <span class="glyphicon glyphicon-step-forward" aria-hidden="true"></span>
+                </button>
+              </div>
             </div>
             <div class="col-xs-6">
-              <h3>Page Table</h3>
-              <table class="table">
-                <tr>
-                  <th>Page</th>
-                  <th>Frame</th>
-                </tr>
-                <tr ng-repeat="p in pageTable" ng-class="{success: p.page == currentReference.page}">
-                  <td>{{p.page}}</td>
-                  <td>{{p.frame}}</td>
-                </tr>
-              </table>
+              <h3>Page Tables</h3>
+              <div class="panel-body" ng-repeat="pageTable in pageTables">
+                <h4>{{pageTable.process}}</h4>
+                <table class="table">
+                    <tr>
+                      <th>Page</th>
+                      <th>Frame</th>
+                    </tr>
+                    <tr ng-repeat="p in pageTable.pages" ng-class="{success: p.page == currentReference.page && pageTable.process == currentReference.process}">
+                      <td>{{p.page}}</td>
+                      <td>{{p.frame}}</td>
+                    </tr>
+                  </table>
+              </div>
             </div>
             <div class="col-xs-6">
               <h3>Physical Memory</h3>

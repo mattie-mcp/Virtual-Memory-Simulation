@@ -45,6 +45,7 @@ const getFrames = () => {
 
 const handlePageFault = (processId, pageNumber) => {
   let index = null;
+
   for (let i=0; i<size; i++) {
     if (frameTable[i].processId == null) {
       index = i;
@@ -61,11 +62,18 @@ const handlePageFault = (processId, pageNumber) => {
   return index;
 };
 
+const resetVictim = () => {
+  for (let i=0; i<frameTable.length; i++) {
+    frameTable[i].isVictim = false;
+  }
+};
+
 const physicalMem = {
   initialize: initialize,
   handlePageFault: handlePageFault,
   getFrame: getFrame,
-  getFrames: getFrames
+  getFrames: getFrames,
+  resetVictim: resetVictim
 };
 
 module.exports = physicalMem;

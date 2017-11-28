@@ -46,7 +46,17 @@ const initializePhysicalMemory = () => {
   });
 };
 
+const resetValidBit = () => {
+  for (let i=0; i<pageTableList.length; i++) {
+    for (let j=0; j<pageTableList[i].pages.length; j++) {
+      pageTableList[i].pages[j].isValid = true;
+    }
+  }
+};
+
 const accessPage = (index, process, page) => {
+  physicalMem.resetVictim();
+  resetValidBit();
   const _pages = getPageTableAtIndex(index).pages;
   let _page = _.find(_pages, (p) => { return p.page == page; });
   let response = {};
@@ -61,8 +71,10 @@ const accessPage = (index, process, page) => {
         victim = temp;
     }
     console.log('victim information ' + JSON.stringify(victim));
-    if (victim)
+    if (victim) {
       victim.frame = null;
+      victim.isValid = false;
+    }
     _page.frame = frameIndex;
     _page.isValid = true;
     response.pageFault = true;

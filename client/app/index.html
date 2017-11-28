@@ -16,7 +16,7 @@
 </head>
 
 <body ng-controller="appController" style="padding-top:20px;padding-bottom:20px;background-color:rgba(247, 247, 247, 0.94)">
-  <div class="container">
+  <div style="padding:20px">
     <header ng-include src="'/dist/__header.html'"></header>
     <div class="panel panel-default">
       <div class="panel-body">
@@ -51,7 +51,7 @@
                 <div ng-repeat="pageTable in pageTables" style="padding:15px;min-width:200px">
                   <ul class="list-group">
                     <li class="list-group-item list-group-item-info">{{pageTable.process}} Page Table</li>
-                    <li class="list-group-item" ng-repeat="p in pageTable.pages" ng-class="{'list-group-item-success': p.page == currentReference.page && pageTable.process == currentReference.process}">
+                    <li class="list-group-item" ng-repeat="p in pageTable.pages" ng-class="{'list-group-item-success': p.page == currentReference.page && pageTable.process == currentReference.process, 'list-group-item-danger': p.isValid == false}">
                       Page {{p.page}} | Frame {{p.frame}}
                     </li>
                   </ul>
@@ -60,22 +60,22 @@
             </div>
             <div class="col-xs-6">
               <h3>Physical Memory</h3>
-              <table class="table">
-                <tr>
-                  <th>Frame Number</th>
-                  <th>Process</th>
-                  <th>Page</th>
-                  <th>Last Accessed</th>
-                  <th>IsVictim</th>
-                </tr>
-                <tr ng-repeat="p in physicalMem" ng-class="{success: p.pageNumber == currentReference.page && p.processId == currentReference.process}">
-                  <td>{{p.number}}</td>
-                  <td>{{p.processId}}</td>
-                  <td>{{p.pageNumber}}</td>
-                  <td>{{p.lastAccessed}}</td>
-                  <td>{{p.isVictim}}</td>
-                </tr>
-              </table>
+              <div style="display:flex;flex-wrap:wrap;">
+                <div class="panel panel-default" style="margin:8px" ng-repeat="p in physicalMem" 
+                  ng-class="{'panel panel-success': p.pageNumber == currentReference.page && p.processId == currentReference.process, 'panel panel-danger': p.isVictim == true }">
+                  <div class="panel-heading">
+                    Frame {{p.number}} &nbsp;&nbsp;&nbsp;&nbsp;
+                    <span class="label label-primary pull-right" ng-if="p.lastAccessed != null" >{{p.lastAccessed | date: 'hh:mm:ss'}}</span>
+                  </div>
+                  <div class="panel-body">
+                    <p ng-if="p.processId != null">Process {{p.processId}}
+                      <br/>
+                    </p>
+                    <p ng-if="p.pageNumber != null">Page Number {{p.pageNumber}}
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

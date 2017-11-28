@@ -47,35 +47,31 @@ const startNewProgram = (fileLocation) => {
  */
 const nextReference = (payload) => {
   return new Promise((fulfill, reject) => {
-    Promise.resolve()
-      .then(() => {
-        if (currentReference == null) {
-          currentReference = memoryReferences[0];
-        }
-        else if (payload.next == 'true') {
-          const index = _.indexOf(memoryReferences, currentReference); // get next memory reference
-          if (index + 2 > memoryReferences.length) {
-            return fulfill(currentReference);
-          }
-          // move to next state
-          currentReference = memoryReferences[index + 1];
-        }
-        else if (payload.previous == 'false') {
-          // get last memory reference
-        }
+    if (currentReference == null) {
+      currentReference = memoryReferences[0];
+    }
+    else if (payload.next == 'true') {
+      const index = _.indexOf(memoryReferences, currentReference); // get next memory reference
+      if (index + 2 > memoryReferences.length) {
+        return fulfill(currentReference);
+      }
+      // move to next state
+      currentReference = memoryReferences[index + 1];
+    }
+    else if (payload.previous == 'false') {
+      // get last memory reference
+    }
+    // trigger logical memory access
+    const _pcb = getPCB(currentReference.process);
+    const memOperation = pageTable.accessPage(_pcb.pageTablePointer, currentReference.process, currentReference.page);
+    if (memOperation.pageFault) {
+      _pcb.pageFaultCount++;
+    }
 
-        // trigger logical memory access
-        const _pcb = getPCB(currentReference.process);
-        const memOperation = pageTable.accessPage(_pcb.pageTablePointer, currentReference.process, currentReference.page);
-        if (memOperation.pageFault) {
-          _pcb.pageFaultCount++;
-        }
-
-        console.log('[info]', 'Moving to reference ' + JSON.stringify(currentReference));
-        fulfill(currentReference);
-      })
-      .catch((err) => { reject(err); });
-  });
+    console.log('[info]', 'Moving to reference ' + JSON.stringify(currentReference));
+    fulfill(currentReference);
+  })
+    .catch((err) => { reject(err); });;
 };
 
 /**
@@ -94,7 +90,8 @@ const load = (rawReferences) => {
     });
 
     fulfill(memoryReferences);
-  });
+  })
+    .catch((err) => { reject(err); });;
 };
 
 const createProcessTable = () => {
@@ -121,7 +118,8 @@ const createProcessTable = () => {
     }
 
     fulfill(processList);
-  });
+  })
+    .catch((err) => { reject(err); });;
 };
 
 const getReferenceStats = () => {
@@ -152,7 +150,7 @@ const getState = () => {
     console.log('[info]', 'Current state ' + JSON.stringify(response));
     fulfill(response);
   })
-  .catch((err) => { reject(err); });;
+    .catch((err) => { reject(err); });;
 };
 
 const memory = {

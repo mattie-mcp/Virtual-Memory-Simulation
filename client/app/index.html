@@ -2,7 +2,7 @@
 <html lang="en" ng-app="app">
 
 <head>
-  <title>Computer Lab</title>
+  <title>Virtual Memory Simulation</title>
   <script src="/static/jquery.min.js"></script>
   <script src="/static/angular.min.js"></script>
   <script src="/static/angular-route.min.js"></script>
@@ -47,18 +47,15 @@
             </div>
             <div class="col-xs-6">
               <h3>Page Tables</h3>
-              <div class="panel-body" ng-repeat="pageTable in pageTables">
-                <h4>{{pageTable.process}}</h4>
-                <table class="table">
-                    <tr>
-                      <th>Page</th>
-                      <th>Frame</th>
-                    </tr>
-                    <tr ng-repeat="p in pageTable.pages" ng-class="{success: p.page == currentReference.page && pageTable.process == currentReference.process}">
-                      <td>{{p.page}}</td>
-                      <td>{{p.frame}}</td>
-                    </tr>
-                  </table>
+              <div style="display:flex;flex-wrap:wrap;">
+                <div ng-repeat="pageTable in pageTables" style="padding:15px;min-width:200px">
+                  <ul class="list-group">
+                    <li class="list-group-item list-group-item-info">{{pageTable.process}} Page Table</li>
+                    <li class="list-group-item" ng-repeat="p in pageTable.pages" ng-class="{'list-group-item-success': p.page == currentReference.page && pageTable.process == currentReference.process}">
+                      Page {{p.page}} | Frame {{p.frame}}
+                    </li>
+                  </ul>
+                </div>
               </div>
             </div>
             <div class="col-xs-6">

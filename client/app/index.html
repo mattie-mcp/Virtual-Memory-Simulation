@@ -34,10 +34,10 @@
                 <button type="button" class="btn btn-default" ng-click="step(-1)">
                   <span class="glyphicon glyphicon-step-backward" aria-hidden="true"></span>
                 </button>
-                <button type="button" class="btn btn-default" ng-if="isPaused">
+                <button type="button" class="btn btn-default" ng-if="isPaused" ng-click="togglePause(false)">
                   <span class="glyphicon glyphicon-play" aria-hidden="true"></span>
                 </button>
-                <button type="button" class="btn btn-default" ng-if="!isPaused">
+                <button type="button" class="btn btn-default" ng-if="!isPaused" ng-click="togglePause(true)">
                   <span class="glyphicon glyphicon-pause" aria-hidden="true"></span>
                 </button>
                 <button type="button" class="btn btn-default" ng-click="step(1)">

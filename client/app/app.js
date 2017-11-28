@@ -1,3 +1,4 @@
+
 var app = angular.module('app', [
   'ngRoute',
   'ngFileUpload',
@@ -19,8 +20,22 @@ app.controller('appController', ['$scope', '$http', 'Upload', ($scope, $http, Up
   $scope.pageTable = [];
   $scope.statsData;
   $scope.progress = {};
-  //$scope.currentReference;
   $scope.isPaused = false;
+
+  $scope.play = () => {
+    if ($scope.isPaused == false) {
+      $scope.step(1);
+      setTimeout(() => {
+        $scope.play();
+      }, 2000);
+    }
+  };
+
+  $scope.togglePause = (pause) => {
+    $scope.isPaused = pause;
+    if (pause == false)
+      $scope.play();
+  };
 
   $scope.step = (action) => {
     return $http({
@@ -61,7 +76,7 @@ app.controller('appController', ['$scope', '$http', 'Upload', ($scope, $http, Up
         file: file
       }
     }).then((response) => {
-      $scope.step(1);
+      $scope.togglePause(false);
       // $scope.currentReference = response.data.currentReference;
       
     });

@@ -14,6 +14,8 @@ let pageEntry = {
   isValid: null
 };
 
+let pageFault = false;
+
 const createTable = (process, pages) => {
 
   let pTable = JSON.parse(JSON.stringify(pageTable));
@@ -55,6 +57,7 @@ const resetValidBit = () => {
 };
 
 const accessPage = (index, process, page) => {
+  pageFault = false;
   physicalMem.resetVictim();
   resetValidBit();
   const _pages = getPageTableAtIndex(index).pages;
@@ -64,6 +67,7 @@ const accessPage = (index, process, page) => {
 
   if (_page.frame == null || _page.isValid == false) {
     let frameIndex = physicalMem.handlePageFault(process, page);
+    pageFault = true;
     let victim = null;
     for (let i=0; i<pageTableList.length; i++) {
       let temp = _.find(pageTableList[i].pages, (p) => { return p.frame == frameIndex; });
@@ -93,7 +97,8 @@ const pageTableManager = {
   getPageTables: getPageTables,
   getPageTableAtIndex: getPageTableAtIndex,
   getFrames: getFrames,
-  accessPage: accessPage
+  accessPage: accessPage,
+  pageFault: pageFault
 };
 
 module.exports = pageTableManager;

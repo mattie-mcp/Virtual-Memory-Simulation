@@ -23,6 +23,21 @@
         <div class="row">
           <div class="panel-body">
             <h3>Current memory reference: Process {{currentReference.process}} Page: {{currentReference.page}}</h3>
+            <h3>Memory Reference Statistics</h3>
+            <table class="table">
+              <tr>
+                <th>Process Number</th>
+                <th>Pages</th>
+                <th>Memory References</th>
+                <th>Page Faults</th>
+              </tr>
+              <tr ng-repeat="p in statsData">
+                <td>{{p.name}}</td>
+                <td>{{p.pageCount}}</td>
+                <td>{{p.referenceCount}}</td>
+                <td>{{p.pageFaultCount}}</td>
+              </tr>
+            </table>
             <div class="text-center">
               <div class="progress">
                 <div class="progress-bar" role="progressbar" aria-valuenow="{{progress.current}}" aria-valuemin="{{progress.min}}" aria-valuemax="{{progress.max}}"
@@ -42,6 +57,9 @@
                 </button>
                 <button type="button" class="btn btn-default" ng-click="step(1)">
                   <span class="glyphicon glyphicon-step-forward" aria-hidden="true"></span>
+                </button>
+                <button type="button" class="btn btn-default" ng-click="playUntilPageFault()">
+                  <span class="glyphicon glyphicon-fast-forward" aria-hidden="true"></span>
                 </button>
               </div>
             </div>

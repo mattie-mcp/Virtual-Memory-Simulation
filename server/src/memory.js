@@ -141,6 +141,7 @@ const getState = () => {
       processStats: processList,
       pageTables: pageTable.getPageTables(),
       physicalMem: pageTable.getFrames(),
+      pageFault: pageTable.pageFault,
       progress: {
         min: 0,
         current: currentReference.index,

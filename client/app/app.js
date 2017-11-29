@@ -37,6 +37,13 @@ app.controller('appController', ['$scope', '$http', 'Upload', ($scope, $http, Up
       $scope.play();
   };
 
+  $scope.playUntilPageFault = () => {
+    let repsonse = $scope.step(1);
+    if (response.pageFault != true) {
+      $scope.playUntilPageFault();
+    }
+  };
+
   $scope.step = (action) => {
     return $http({
       url: '/nextReference',
@@ -63,6 +70,7 @@ app.controller('appController', ['$scope', '$http', 'Upload', ($scope, $http, Up
       $scope.physicalMem = successResponse.data.physicalMem;
       $scope.progress = successResponse.data.progress;
       $scope.statsData = successResponse.data.processStats;
+      return successResponse.data;
     }, (failResonse) => {
       console.log('ERROR' + successResponse.status);
       return null;

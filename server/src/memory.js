@@ -5,7 +5,7 @@
 const config = require('../config.js');
 const _ = require('lodash');
 const fileOperations = require('./fileOperations');
-const pageTable = require('./memory/pageTableManager');
+const pageTableManager = require('./memory/pageTableManager');
 
 // All memory references to be accessed
 let memoryReferences = [];
@@ -46,7 +46,7 @@ const startNewProgram = (fileLocation) => {
       .then(() => fileOperations.processFile(fileLocation) )
       .then((response) => load(response))
       .then(() => createProcessTable())
-      .then(() => fulfill(pageTable.initializePhysicalMemory()))
+      .then(() => fulfill(pageTableManager.initializePhysicalMemory()))
       .catch((err) => { reject(err); });
   });
 };
@@ -59,7 +59,7 @@ const reset = () => {
     memoryReferences = [];
     processList = [];
     currentReference = null;
-    pageTable.reset();
+    pageTableManager.reset();
     fulfill();
   })
 };
@@ -88,7 +88,7 @@ const nextReference = (payload) => {
     }
     // trigger logical memory access
     const _pcb = getPCB(currentReference.process);
-    const memOperation = pageTable.accessPage(_pcb.pageTablePointer, currentReference.process, currentReference.page);
+    const memOperation = pageTableManager.accessPage(_pcb.pageTablePointer, currentReference.process, currentReference.page);
     if (memOperation.pageFault) {
       currentReference.pageFault = true;
       _pcb.pageFaultCount++;
@@ -142,7 +142,7 @@ const createProcessTable = () => {
       pEntry.name = processNames[i];
       pEntry.pageCount = pages.length;
       pEntry.referenceCount = references.length;
-      pEntry.pageTablePointer = pageTable.createTable(pEntry.name, pages);  // create page table
+      pEntry.pageTablePointer = pageTableManager.createTable(pEntry.name, pages);  // create page table
 
       console.log('[info]', 'Adding process ' + pEntry.name + ' to process table');
       processList.push(pEntry);
@@ -172,8 +172,8 @@ const getState = () => {
     let response = {
       status: currentReference,
       processStats: processList,
-      pageTables: pageTable.getPageTables(),
-      physicalMem: pageTable.getFrames(),
+      pageTables: pageTableManager.getPageTables(),
+      physicalMem: pageTableManager.getFrames(),
       progress: {
         min: 0,
         current: currentReference.index,

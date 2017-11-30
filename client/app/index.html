@@ -22,10 +22,10 @@
       <div class="panel-body">
         <div class="row">
           <div class="panel-body">
-            <h3 ng-if="isFileUploaded">Current memory reference: Process {{currentReference.process}} Page: {{currentReference.page}}</h3>
             <div class="row">
               <div class="panel-body">
-                <div class="col-xs-3">
+                <div class="col-xs-4">
+                  <h3 ng-if="isFileUploaded">Current memory reference: Process {{currentReference.process}} Page: {{currentReference.page}}</h3>
                   <div class="container-fluid">
                     <div class="form-group">
                       <h3>File Input</h3>
@@ -35,7 +35,7 @@
                     <button class="btn btn-primary" type="button" ng-click="uploadFile(file)">Upload</button>
                   </div>
                 </div>
-                <div ng-if="isFileUploaded" class="col-xs-9">
+                <div ng-if="isFileUploaded" class="col-xs-8">
                   <h3>Memory Reference Statistics</h3>
                   <table class="table">
                     <tr>
@@ -62,11 +62,11 @@
                 </div>
               </div>
               <div class="btn-group" role="group" aria-label="..." style="display:flex;justify-content:center;">
-                <button type="button" ng-if="isPaused" class="btn btn-default" ng-click="togglePause(false)" data-toggle="tooltip"
-                  title="Play">
+                <button type="button" ng-if="isPaused" class="btn btn-default" ng-click="togglePause(false)" data-toggle="tooltip" title="Play">
                   <span class="glyphicon glyphicon-play" aria-hidden="true"></span>
                 </button>
-                <button type="button" class="btn btn-default" ng-if="!isPaused" ng-click="togglePause(true, 1500)" data-toggle="tooltip" title="Pause">
+                <button type="button" class="btn btn-default" ng-if="!isPaused" ng-click="togglePause(true, 1500)" data-toggle="tooltip"
+                  title="Pause">
                   <span class="glyphicon glyphicon-pause" aria-hidden="true"></span>
                 </button>
                 <button type="button" class="btn btn-default" ng-click="step(1)" data-toggle="tooltip" title="Step forward 1 reference">
@@ -87,12 +87,19 @@
               <h3>Page Tables</h3>
               <div style="display:flex;flex-wrap:wrap;">
                 <div ng-repeat="pageTable in pageTables" style="padding:15px;min-width:200px">
-                  <ul class="list-group">
-                    <li class="list-group-item list-group-item-info">{{pageTable.process}} Page Table</li>
-                    <li class="list-group-item" ng-repeat="p in pageTable.pages" ng-class="{'list-group-item-success': p.page == currentReference.page && pageTable.process == currentReference.process, 'list-group-item-danger': p.isValid == false}">
-                      Page {{p.page}} | Frame {{p.frame}}
-                    </li>
-                  </ul>
+                  <h4>{{pageTable.process}} Page Table</h4>
+                  <table class="table">
+                    <tr>
+                      <th>Page</th>
+                      <th>Frame</th>
+                    </tr>
+                    <tr ng-repeat="p in pageTable.pages" ng-class="{'success': p.page == currentReference.page && pageTable.process == currentReference.process, 'danger': p.isValid == false}">
+                      <td>{{p.page}}</td>
+                      <td>{{p.frame}}</td>
+                      <td>{{p.referenceCount}}</td>
+                      <td>{{p.pageFaultCount}}</td>
+                    </tr>
+                  </table>
                 </div>
               </div>
             </div>

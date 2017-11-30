@@ -14,8 +14,6 @@ let pageEntry = {
   isValid: null
 };
 
-let pageFault = false;
-
 const createTable = (process, pages) => {
 
   let pTable = JSON.parse(JSON.stringify(pageTable));
@@ -57,24 +55,20 @@ const resetValidBit = () => {
 };
 
 const accessPage = (index, process, page) => {
-  pageFault = false;
   physicalMem.resetVictim();
   resetValidBit();
   const _pages = getPageTableAtIndex(index).pages;
   let _page = _.find(_pages, (p) => { return p.page == page; });
   let response = {};
-  console.log('[info :before]', JSON.stringify(_page) + 'process ' + process + ' page ' + page);
 
   if (_page.frame == null || _page.isValid == false) {
     let frameIndex = physicalMem.handlePageFault(process, page);
-    pageFault = true;
     let victim = null;
     for (let i=0; i<pageTableList.length; i++) {
       let temp = _.find(pageTableList[i].pages, (p) => { return p.frame == frameIndex; });
       if (temp)
         victim = temp;
     }
-    console.log('victim information ' + JSON.stringify(victim));
     if (victim) {
       victim.frame = null;
       victim.isValid = false;
@@ -84,11 +78,13 @@ const accessPage = (index, process, page) => {
     response.pageFault = true;
   }
 
-  console.log('[info :after]', JSON.stringify(_page));
   _page.frame = physicalMem.getFrame(_page.frame).number;
-  // TODO: implement valid/invalid bit
-  console.log('[info :after2]', JSON.stringify(_page));
   return response;
+};
+
+const reset = () => {
+  pageTableList = [];
+  physicalMem.reset();
 };
 
 const pageTableManager = {
@@ -98,7 +94,7 @@ const pageTableManager = {
   getPageTableAtIndex: getPageTableAtIndex,
   getFrames: getFrames,
   accessPage: accessPage,
-  pageFault: pageFault
+  reset: reset
 };
 
 module.exports = pageTableManager;

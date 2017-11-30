@@ -20,31 +20,78 @@ app.controller('appController', ['$scope', '$http', 'Upload', ($scope, $http, Up
   $scope.pageTable = [];
   $scope.statsData;
   $scope.progress = {};
-  $scope.isPaused = false;
+  $scope.isPaused = true;
+  $scope.speed = 2000;
 
-  $scope.play = () => {
-    if ($scope.isPaused == false) {
+  const isDone = () => {
+    if (!$scope.progress || $scope.progress.current == null || $scope.progress.max == null) {
+      return false;
+    }
+    return $scope.progress.current === $scope.progress.max;
+  };
+
+  const reset = () => {
+    
+    $scope.memReferences = [];
+    $scope.physicalMem = [];
+    $scope.pageTable = [];
+    $scope.statsData;
+    $scope.progress = {};
+    $scope.isPaused = true;
+    $scope.speed = 2000;
+
+    return $http({
+      url: '/reset',
+      method: "POST",
+      params: { }
+    }).then(() => {
+      return;
+    }, (failResonse) => {
+      console.log('ERROR' + failResonse.status);
+      return null;
+    });
+  };
+
+  $scope.play = (ms) => {
+    if ($scope.isPaused == false && !isDone()) {
       $scope.step(1);
       setTimeout(() => {
-        $scope.play();
-      }, 2000);
+        $scope.play(ms);
+      }, ms);
     }
   };
 
-  $scope.togglePause = (pause) => {
+  $scope.togglePause = (pause, stepSpeed) => {
     $scope.isPaused = pause;
-    if (pause == false)
-      $scope.play();
+    if (pause == false) {
+      console.log(stepSpeed);
+      console.log($scope.speed);
+      $scope.play(stepSpeed == null ? $scope.speed : stepSpeed);
+    }
   };
 
   $scope.playUntilPageFault = () => {
-    let repsonse = $scope.step(1);
-    if (response.pageFault != true) {
-      $scope.playUntilPageFault();
+    console.log('step');
+    if (isDone()) {
+      return;
     }
+    $scope.isPaused = true;
+    $scope.step(1)
+      .then(() => {
+        if (!$scope.currentReference.pageFault || $scope.currentReference.pageFault != true) {
+          $scope.playUntilPageFault();
+        }
+        else {
+          console.log('page fault');
+          return;
+        }
+      });
   };
 
   $scope.step = (action) => {
+    if (isDone()) {
+      return;
+    }
     return $http({
       url: '/nextReference',
       method: "GET",
@@ -52,9 +99,9 @@ app.controller('appController', ['$scope', '$http', 'Upload', ($scope, $http, Up
     }).then((successResponse) => {
       console.log(successResponse.data);
       $scope.currentReference = successResponse.data;
-      $scope.getState();
+      return $scope.getState();
     }, (failResonse) => {
-      console.log('ERROR' + successResponse.status);
+      console.log('ERROR' + failResonse.status);
       return null;
     });
   };
@@ -78,6 +125,7 @@ app.controller('appController', ['$scope', '$http', 'Upload', ($scope, $http, Up
   };
   
   $scope.uploadFile = (file) => {
+    reset();
     file.upload = Upload.upload({
       url: '/startNewProgram',
       data: {

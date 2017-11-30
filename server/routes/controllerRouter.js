@@ -31,4 +31,11 @@ exports.addRoutes = (app, config) => {
       });
   });
   
+  app.post('/reset', (req, res) => {
+    memory.reset()
+      .then((accept, reject) => {
+        res.send(accept);
+      });
+  });
+
 };

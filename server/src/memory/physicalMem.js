@@ -1,8 +1,17 @@
+/**
+ * Author: Mattie Phillips
+ * physicalMem.js encapsulates physical memory and physical memory operations
+ */
+
 const _ = require('lodash');
 
-let frameTable = [];
-const size = 16;
+const size = 16;  // number of frames in physical memory
 
+let frameTable = [];  // List of frames that represent physical mem
+
+/**
+ * Frame of memory
+ */
 let frame = {
   number: null,
   processId: null,
@@ -11,6 +20,9 @@ let frame = {
   isVictim: false
 };
 
+/**
+ * Initializes physical memory with defined number of frames
+ */
 const initialize = () => {
   frameTable = [];
   for (let i = 0; i < size; i++) {
@@ -20,6 +32,10 @@ const initialize = () => {
   }
 };
 
+/**
+ * Frees a frame in memory (sets content to null) using the LRU algorithm
+ * Returns frame
+ */
 const freeFrameLRU = () => {
   let lru = _.min(frameTable, (frame) => { return frame.lastAccessed });
   let lruIndex = _.indexOf(frameTable, lru);
@@ -34,6 +50,11 @@ const freeFrameLRU = () => {
   return lruIndex;
 ;}
 
+/**
+ * Retrieves frame at specified index
+ * @param {int} index Frame index to retrieve
+ * Returns frame
+ */
 const getFrame = (index) => {
   frameTable[index].lastAccessed = Date.now();
   return frameTable[index];
@@ -68,12 +89,17 @@ const resetVictim = () => {
   }
 };
 
+const reset = () => {
+  frameTable = [];
+};
+
 const physicalMem = {
   initialize: initialize,
   handlePageFault: handlePageFault,
   getFrame: getFrame,
   getFrames: getFrames,
-  resetVictim: resetVictim
+  resetVictim: resetVictim,
+  reset: reset
 };
 
 module.exports = physicalMem;

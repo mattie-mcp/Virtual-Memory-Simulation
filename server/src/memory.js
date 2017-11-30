@@ -29,12 +29,23 @@ const startNewProgram = (fileLocation) => {
   // TODO: Reset data in other files
 
   return new Promise((fulfill, reject) => {
-    fileOperations.processFile(fileLocation)
+    reset()
+      .then(() => fileOperations.processFile(fileLocation) )
       .then((response) => load(response))
       .then(() => createProcessTable())
       .then(() => fulfill(pageTable.initializePhysicalMemory()))
       .catch((err) => { reject(err); });
   });
+};
+
+const reset = () => {
+  return new Promise((fulfill, reject) => {
+    memoryReferences = [];
+    processList = [];
+    currentReference = null;
+    pageTable.reset();
+    fulfill();
+  })
 };
 
 /**
@@ -65,13 +76,14 @@ const nextReference = (payload) => {
     const _pcb = getPCB(currentReference.process);
     const memOperation = pageTable.accessPage(_pcb.pageTablePointer, currentReference.process, currentReference.page);
     if (memOperation.pageFault) {
+      currentReference.pageFault = true;
       _pcb.pageFaultCount++;
     }
 
     console.log('[info]', 'Moving to reference ' + JSON.stringify(currentReference));
     fulfill(currentReference);
   })
-    .catch((err) => { reject(err); });;
+    .catch((err) => { throw err; });
 };
 
 /**
@@ -91,7 +103,7 @@ const load = (rawReferences) => {
 
     fulfill(memoryReferences);
   })
-    .catch((err) => { reject(err); });;
+  .catch((err) => { throw err; });
 };
 
 const createProcessTable = () => {
@@ -119,7 +131,7 @@ const createProcessTable = () => {
 
     fulfill(processList);
   })
-    .catch((err) => { reject(err); });;
+  .catch((err) => { throw err; });
 };
 
 const getReferenceStats = () => {
@@ -141,7 +153,6 @@ const getState = () => {
       processStats: processList,
       pageTables: pageTable.getPageTables(),
       physicalMem: pageTable.getFrames(),
-      pageFault: pageTable.pageFault,
       progress: {
         min: 0,
         current: currentReference.index,
@@ -151,13 +162,14 @@ const getState = () => {
     console.log('[info]', 'Current state ' + JSON.stringify(response));
     fulfill(response);
   })
-    .catch((err) => { reject(err); });;
+  .catch((err) => { throw err; });
 };
 
 const memory = {
   getState: getState,
   nextReference: nextReference,
-  startNewProgram: startNewProgram
+  startNewProgram: startNewProgram,
+  reset: reset
 };
 
 module.exports = memory;

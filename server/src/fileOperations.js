@@ -12,9 +12,11 @@ const readFile = (fileLocation) => {
   let fileBuffer = fs.readFileSync(fileLocation);
   let fileString = fileBuffer.toString();
   
-  content = fileString.trim().split('\r\n');
+  content = fileString.trim().split('\n');
   content = _.map(content, (line) => {
-    if (line == '' || line.includes('\n') || line.includes('\r')) {
+    line.replace(/\\n/, "");
+    line.replace(/\\r/, "");
+    if (line == '' || line == '\n' || line == '\r') {
       return null;
     }
     let pInfo = line.split(':');

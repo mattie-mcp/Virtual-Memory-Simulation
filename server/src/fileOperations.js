@@ -1,11 +1,19 @@
+/**
+ * Author: Mattie Phillips
+ * Reads in and processes input file
+ */
 const config = require('../config.js');
 const path = require('path');
-const es = require('event-stream');
 const fs = require('fs');
 const _ = require('lodash');
 
 let fileLocation = '';
 
+/**
+ * Reads in file and returns array of memory references
+ * @param {string} fileLocation Location of file to parse
+ * Returns array of memory references
+ */
 const readFile = (fileLocation) => {
   let content = [];
 
@@ -30,6 +38,10 @@ const readFile = (fileLocation) => {
   return content;
 };
 
+/**
+ * Saves file locally first if necessary
+ * @param {string} inputFile File location
+ */
 const preProcessFile = (inputFile) => {
   return new Promise((fulfill, reject) => {
     fileLocation = path.resolve(__dirname, '../inputFiles/' + inputFile.name);
@@ -44,6 +56,10 @@ const preProcessFile = (inputFile) => {
   });
 };
 
+/**
+ * Saves new format of file locally
+ * @param {string} fileLocation  File location
+ */
 const processFile = (fileLocation) => {
   return new Promise((fulfill, reject) => {
     let content = readFile(fileLocation);
@@ -53,6 +69,9 @@ const processFile = (fileLocation) => {
   });
 };
 
+/**
+ * Re-reads file and returns data
+ */
 const getData = () => {
   return new Promise((fulfill, reject) => {
     const data = readFile(fileLocation);
@@ -61,6 +80,9 @@ const getData = () => {
   });
 };
 
+/**
+ * Exposed services
+ */
 const fileOperations = {
   preProcessFile: preProcessFile,
   processFile: processFile,

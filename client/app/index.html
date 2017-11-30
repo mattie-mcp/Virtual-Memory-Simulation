@@ -22,7 +22,7 @@
       <div class="panel-body">
         <div class="row">
           <div class="panel-body">
-            <h3>Current memory reference: Process {{currentReference.process}} Page: {{currentReference.page}}</h3>
+            <h3 ng-if="isFileUploaded">Current memory reference: Process {{currentReference.process}} Page: {{currentReference.page}}</h3>
             <div class="row">
               <div class="panel-body">
                 <div class="col-xs-3">
@@ -35,7 +35,7 @@
                     <button class="btn btn-primary" type="button" ng-click="uploadFile(file)">Upload</button>
                   </div>
                 </div>
-                <div class="col-xs-9">
+                <div ng-if="isFileUploaded" class="col-xs-9">
                   <h3>Memory Reference Statistics</h3>
                   <table class="table">
                     <tr>
@@ -54,7 +54,7 @@
                 </div>
               </div>
             </div>
-            <div class="text-center">
+            <div ng-if="isFileUploaded" class="text-center">
               <div class="progress">
                 <div class="progress-bar" role="progressbar" aria-valuenow="{{progress.current}}" aria-valuemin="{{progress.min}}" aria-valuemax="{{progress.max}}"
                   style="width: {{(progress.current/progress.max)*100}}%;">
@@ -83,7 +83,7 @@
                 </button>
               </div>
             </div>
-            <div class="col-xs-6">
+            <div ng-if="isFileUploaded" class="col-xs-5">
               <h3>Page Tables</h3>
               <div style="display:flex;flex-wrap:wrap;">
                 <div ng-repeat="pageTable in pageTables" style="padding:15px;min-width:200px">
@@ -96,7 +96,7 @@
                 </div>
               </div>
             </div>
-            <div class="col-xs-6">
+            <div ng-if="isFileUploaded" class="col-xs-7">
               <h3>Physical Memory</h3>
               <div style="display:flex;flex-wrap:wrap;">
                 <div class="panel panel-default" style="margin:8px" ng-repeat="p in physicalMem" ng-class="{'panel panel-success': p.pageNumber == currentReference.page && p.processId == currentReference.process, 'panel panel-danger': p.isVictim == true }">

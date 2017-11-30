@@ -1,18 +1,27 @@
+/**
+ * Author: Mattie Phillips
+ * Handles and orchestrates all operations to memory
+ */
 const config = require('../config.js');
 const _ = require('lodash');
 const fileOperations = require('./fileOperations');
 const pageTable = require('./memory/pageTableManager');
 
+// All memory references to be accessed
 let memoryReferences = [];
+// List of all processes, PCBs
 let processList = [];
+// Current memory reference
 let currentReference = null;
 
+// Structure of memory reference
 const memoryReference = {
   index: null,
   process: null,
   page: null
 };
 
+// Structure of PCB
 const pcb = {
   name: null,
   pageTablePointer: null,
@@ -21,12 +30,16 @@ const pcb = {
   pageFaultCount: 0
 };
 
+/**
+ * Starts a new program by reading in file, prepopulating data,
+ * and initializing all memory resources
+ * @param {String} fileLocation File to be read in
+ */
 const startNewProgram = (fileLocation) => {
   console.log('[info]', 'Loading new set of memory references');
   memoryReferences = [];
   processList = [];
   currentReference = null;
-  // TODO: Reset data in other files
 
   return new Promise((fulfill, reject) => {
     reset()
@@ -38,6 +51,9 @@ const startNewProgram = (fileLocation) => {
   });
 };
 
+/**
+ * Resets state of program
+ */
 const reset = () => {
   return new Promise((fulfill, reject) => {
     memoryReferences = [];
@@ -52,7 +68,7 @@ const reset = () => {
  * Moves to the next memory reference
  * 
  * @param {Object} payload in the form of an object with two nodes, next and current
- * next: -1 or 1 (-1 = previous, 1 = next)
+ * next: 1 (-1 = previous, 1 = next)
  * current: current instruction
  * 
  */
@@ -62,15 +78,13 @@ const nextReference = (payload) => {
       currentReference = memoryReferences[0];
     }
     else if (payload.next == 'true') {
+      // Protects out of bounds exception
       const index = _.indexOf(memoryReferences, currentReference); // get next memory reference
       if (index + 2 > memoryReferences.length) {
         return fulfill(currentReference);
       }
       // move to next state
       currentReference = memoryReferences[index + 1];
-    }
-    else if (payload.previous == 'false') {
-      // get last memory reference
     }
     // trigger logical memory access
     const _pcb = getPCB(currentReference.process);
@@ -87,8 +101,8 @@ const nextReference = (payload) => {
 };
 
 /**
- * Retrives memory statistics
- * @param {*} memoryReferences 
+ * Loads raw references into structured list of memory references
+ * @param {string[]} memoryReferences 
  */
 const load = (rawReferences) => {
   return new Promise((fulfill, reject) => {
@@ -106,15 +120,20 @@ const load = (rawReferences) => {
   .catch((err) => { throw err; });
 };
 
+/**
+ * Creates an initial process table based on all memory references
+ */
 const createProcessTable = () => {
   return new Promise((fulfill, reject) => {
+    // List of process names
     const processNames = _.map(_.uniq(memoryReferences, (p) => {
       return p.process;
     }), (x) => { return x.process });
 
     for (let i = 0; i < processNames.length; i++) {
-
+      // Get all references for process
       const references = _.where(memoryReferences, { "process": processNames[i] });
+      // Get all pages for process
       const pages = _.map(_.uniq(references, (r) => {
         return r.page;
       }), (x) => { return x.page; });
@@ -123,7 +142,7 @@ const createProcessTable = () => {
       pEntry.name = processNames[i];
       pEntry.pageCount = pages.length;
       pEntry.referenceCount = references.length;
-      pEntry.pageTablePointer = pageTable.createTable(pEntry.name, pages);
+      pEntry.pageTablePointer = pageTable.createTable(pEntry.name, pages);  // create page table
 
       console.log('[info]', 'Adding process ' + pEntry.name + ' to process table');
       processList.push(pEntry);
@@ -134,16 +153,18 @@ const createProcessTable = () => {
   .catch((err) => { throw err; });
 };
 
-const getReferenceStats = () => {
-  return processList;
-};
-
+/**
+ * Returns PCB for specified process name
+ */
 const getPCB = (processName) => {
   return _.find(processList, (p) => {
     return p.name == processName;
   });
 };
 
+/**
+ * Returns entire state of program
+ */
 const getState = () => {
   return new Promise((fulfill, reject) => {
     const _pcb = getPCB(currentReference.process);
@@ -165,6 +186,9 @@ const getState = () => {
   .catch((err) => { throw err; });
 };
 
+/**
+ * Exposed services
+ */
 const memory = {
   getState: getState,
   nextReference: nextReference,

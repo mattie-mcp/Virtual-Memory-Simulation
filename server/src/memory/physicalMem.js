@@ -60,10 +60,18 @@ const getFrame = (index) => {
   return frameTable[index];
 };
 
+/**
+ * Returns entire state of memory
+ */
 const getFrames = () => {
   return frameTable;
 };
 
+/**
+ * Handles case of page fault
+ * @param {string} processId process name
+ * @param {*} pageNumber page number to access
+ */
 const handlePageFault = (processId, pageNumber) => {
   let index = null;
 
@@ -78,21 +86,31 @@ const handlePageFault = (processId, pageNumber) => {
   if (index == null)
     index = freeFrameLRU();
 
+  // Updates new frame
   frameTable[index].processId = processId;
   frameTable[index].pageNumber = pageNumber;
   return index;
 };
 
+/**
+ * Resets victim bit after every reference
+ */
 const resetVictim = () => {
   for (let i=0; i<frameTable.length; i++) {
     frameTable[i].isVictim = false;
   }
 };
 
+/**
+ * Resets state of physical memory
+ */
 const reset = () => {
   frameTable = [];
 };
 
+/**
+ * Exposed services
+ */
 const physicalMem = {
   initialize: initialize,
   handlePageFault: handlePageFault,

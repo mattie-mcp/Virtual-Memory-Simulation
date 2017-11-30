@@ -1,8 +1,7 @@
 
 var app = angular.module('app', [
   'ngRoute',
-  'ngFileUpload',
-  'services.loadFile'
+  'ngFileUpload'
 ]);
 
 app.config(['$routeProvider', '$locationProvider', ($routeProvider, $locationProvider) => {
@@ -15,14 +14,17 @@ app.config(['$routeProvider', '$locationProvider', ($routeProvider, $locationPro
 }]);
 
 app.controller('appController', ['$scope', '$http', 'Upload', ($scope, $http, Upload) => {
-  $scope.memReferences = [];
-  $scope.physicalMem = [];
-  $scope.pageTable = [];
-  $scope.statsData;
-  $scope.progress = {};
-  $scope.isPaused = true;
-  $scope.speed = 2000;
+  $scope.physicalMem = [];  // State of physical memory
+  $scope.pageTable = [];    // All page tables for all processes
+  $scope.statsData;         // Statistics data
+  $scope.progress = {};     // Information on progress through program
+  $scope.isPaused = true;   // Start program in pause state
+  $scope.speed = 2000;      // Default step through speed
+  $scope.isFileUploaded = false;
 
+  /**
+   * Checks to see if all memory references have been read
+   */
   const isDone = () => {
     if (!$scope.progress || $scope.progress.current == null || $scope.progress.max == null) {
       return false;
@@ -30,9 +32,10 @@ app.controller('appController', ['$scope', '$http', 'Upload', ($scope, $http, Up
     return $scope.progress.current === $scope.progress.max;
   };
 
+  /**
+   * Resets state of program
+   */
   const reset = () => {
-    
-    $scope.memReferences = [];
     $scope.physicalMem = [];
     $scope.pageTable = [];
     $scope.statsData;
@@ -52,6 +55,10 @@ app.controller('appController', ['$scope', '$http', 'Upload', ($scope, $http, Up
     });
   };
 
+  /**
+   * Steps through the program automatically
+   * @param {int} ms Milliseconds to wait before moving to next references
+   */
   $scope.play = (ms) => {
     if ($scope.isPaused == false && !isDone()) {
       $scope.step(1);
@@ -61,17 +68,22 @@ app.controller('appController', ['$scope', '$http', 'Upload', ($scope, $http, Up
     }
   };
 
+  /**
+   * 
+   * @param {bool} pause Indicates desired state of pause
+   * @param {int} stepSpeed (optional) speed at which program should be stepped through
+   */
   $scope.togglePause = (pause, stepSpeed) => {
     $scope.isPaused = pause;
     if (pause == false) {
-      console.log(stepSpeed);
-      console.log($scope.speed);
       $scope.play(stepSpeed == null ? $scope.speed : stepSpeed);
     }
   };
 
+  /**
+   * Continues to step through program until next page fault
+   */
   $scope.playUntilPageFault = () => {
-    console.log('step');
     if (isDone()) {
       return;
     }
@@ -82,12 +94,15 @@ app.controller('appController', ['$scope', '$http', 'Upload', ($scope, $http, Up
           $scope.playUntilPageFault();
         }
         else {
-          console.log('page fault');
           return;
         }
       });
   };
 
+  /**
+   * Moves to next memory reference
+   * @param {int} action 1 or -1, 1 indicating the program should move forward
+   */
   $scope.step = (action) => {
     if (isDone()) {
       return;
@@ -106,6 +121,9 @@ app.controller('appController', ['$scope', '$http', 'Upload', ($scope, $http, Up
     });
   };
 
+  /**
+   * Retrieves state of program in order to update UI
+   */
   $scope.getState = () => {
     return $http({
       url: '/getState',
@@ -124,6 +142,10 @@ app.controller('appController', ['$scope', '$http', 'Upload', ($scope, $http, Up
     });
   };
   
+  /**
+   * Kicks off execution of new memory references
+   * @param {Object} file FIle to upload
+   */
   $scope.uploadFile = (file) => {
     reset();
     file.upload = Upload.upload({
@@ -132,14 +154,12 @@ app.controller('appController', ['$scope', '$http', 'Upload', ($scope, $http, Up
         file: file
       }
     }).then((response) => {
-      $scope.togglePause(false);
-      // $scope.currentReference = response.data.currentReference;
-      
+      $scope.isFileUploaded = true;
+      $scope.togglePause(false);      
     });
   };
 
 }]);
 
 app.controller('menuController', ['$scope', ($scope) => {
-    console.log('loaded menu controller');
 }]);
